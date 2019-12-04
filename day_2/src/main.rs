@@ -37,7 +37,8 @@ impl Program {
         let mut prog = Self::new();
         for c in s.split(',') {
             prog.add_raw_instruction(
-                c.trim().parse()
+                c.trim()
+                    .parse()
                     .map_err(|_| ErrorKinds::ParseError(c.to_owned()))?,
             );
         }
@@ -56,7 +57,6 @@ impl Program {
         }
         self.instruction_pointer = 0;
         self
-
     }
 
     pub fn ip(&self) -> usize {
@@ -99,20 +99,30 @@ impl Program {
         self.load(self.ip())
     }
 
-    fn advance(&mut self) -> &mut Self {
-        self.instruction_pointer += 4;
+    fn advance(&mut self, amount: usize) -> &mut Self {
+        self.instruction_pointer += amount;
         self
     }
 
     pub fn eval(&mut self) {
         loop {
             match *self.load_inst() {
-                1 => *self.load_output() = self.load_left_operand() + self.load_right_operand(),
-                2 => *self.load_output() = self.load_left_operand() * self.load_right_operand(),
+                1 => {
+                    *self.load_output() = self.load_left_operand() + self.load_right_operand();
+                    self.advance(4);
+                }
+                2 => {
+                    *self.load_output() = self.load_left_operand() * self.load_right_operand();
+                    self.advance(4);
+                }
                 99 => return,
-                unknown => panic!("unknown opcode {} at {}\n\ndump: {}", unknown, self.ip(), self.dump())
+                unknown => panic!(
+                    "unknown opcode [{}] at instruction: {}\n\ndump: {}",
+                    unknown,
+                    self.ip(),
+                    self.dump()
+                ),
             };
-            self.advance();
         }
     }
 
@@ -120,7 +130,9 @@ impl Program {
         let mut s = String::new();
         for (i, num) in self.memory.iter().enumerate() {
             if i > 0 {
-                write!(&mut s, ",").expect("it should be impossible to fail here, just writing a format into memory");
+                write!(&mut s, ",").expect(
+                    "it should be impossible to fail here, just writing a format into memory",
+                );
             }
             write!(&mut s, "{}", num)
                 .expect("it should be impossible to fail here, just writing a format into memory");
@@ -141,6 +153,7 @@ impl Default for Program {
 
 fn main() -> Result<()> {
     let mut program = Program::from_source(&mut BufReader::new(io::stdin().lock()))?;
+    let target = 19_690_720;
     // patch
     for noun in 0..=99 {
         for verb in 0..=99 {
@@ -148,9 +161,9 @@ fn main() -> Result<()> {
             *program.load_mut(1) = noun;
             *program.load_mut(2) = verb;
             program.eval();
-            if *program.load(0) == 19690720 {
+            if *program.load(0) == target {
                 println!("result found {}", 100 * noun + verb);
-                return Ok(())
+                return Ok(());
             }
         }
     }
