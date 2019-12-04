@@ -6,8 +6,6 @@ use std::io::BufReader;
 use anyhow::Result;
 use thiserror::Error;
 
-// it's ok in this short example to just panic on invalid input
-
 #[derive(Error, Debug)]
 pub enum ErrorKinds {
     #[error("failed to read to string from stdin")]
@@ -154,7 +152,6 @@ impl Default for Program {
 fn main() -> Result<()> {
     let mut program = Program::from_source(&mut BufReader::new(io::stdin().lock()))?;
     let target = 19_690_720;
-    // patch
     for noun in 0..=99 {
         for verb in 0..=99 {
             program.reset();
