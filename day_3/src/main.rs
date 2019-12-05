@@ -61,6 +61,17 @@ impl Part for PartOne {
     }
 }
 
+fn push_to_intersections(intersections: &mut Vec<(i32, i32, i32)>, (x, y, cost): (i32, i32, i32)) {
+    if x != 0 || y != 0 {
+        intersections.push((x, y, cost));
+    }
+}
+
+fn scan_for_intersections(list: &Vec<(i32, i32)>, coord: i32) -> impl Iterator<Item = &(i32, i32)> {
+    list.iter()
+        .filter(move |(start, end)| coord >= *start && coord <= *end)
+}
+
 impl PartOne {
     pub fn new() -> Self {
         Self {
@@ -107,22 +118,26 @@ impl PartOne {
             }
             Mode::Intersections => {
                 if dx == 0 {
-                    for i in y_min..y_max {
-                        if let Some(list) = self.horizontal.get(&i) {
-                            for _ in list.iter().filter(|(start, end)| x >= *start && x <= *end) {
-                                if x != 0 || i != 0 {
-                                    self.intersections.push((x, i, x.abs() + i.abs()));
-                                }
+                    for y in y_min..y_max {
+                        if let Some(list) = self.horizontal.get(&y) {
+                            for _ in scan_for_intersections(list, x) {
+                                push_to_intersections(
+                                    &mut self.intersections,
+                                    (x, y, x.abs() + y.abs()),
+                                );
+                                break;
                             }
                         }
                     }
                 } else if dy == 0 {
-                    for i in x_min..x_max {
-                        if let Some(list) = self.vertical.get(&i) {
-                            for _ in list.iter().filter(|(start, end)| y >= *start && y <= *end) {
-                                if y != 0 || i != 0 {
-                                    self.intersections.push((i, y, i.abs() + y.abs()));
-                                }
+                    for x in x_min..x_max {
+                        if let Some(list) = self.vertical.get(&x) {
+                            for _ in scan_for_intersections(list, y) {
+                                push_to_intersections(
+                                    &mut self.intersections,
+                                    (x, y, y.abs() + x.abs()),
+                                );
+                                break;
                             }
                         }
                     }
