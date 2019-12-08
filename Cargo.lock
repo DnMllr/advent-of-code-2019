@@ -91,6 +91,11 @@ dependencies = [
 [[package]]
 name = "day_5"
 version = "0.1.0"
+dependencies = [
+ "advent_common 0.1.0",
+ "anyhow 1.0.25 (registry+https://github.com/rust-lang/crates.io-index)",
+ "thiserror 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "either"
