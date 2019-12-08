@@ -384,15 +384,13 @@ impl<I: BufRead, O: Write> VM<I, O> {
     }
 
     pub fn dump(&self) -> String {
+        let msg = "it should be impossible to fail here, just writing a format into memory";
         let mut s = String::new();
         for (i, num) in self.memory.iter().enumerate() {
             if i > 0 {
-                write!(&mut s, ",").expect(
-                    "it should be impossible to fail here, just writing a format into memory",
-                );
+                write!(&mut s, ",").expect(msg);
             }
-            write!(&mut s, "{}", num)
-                .expect("it should be impossible to fail here, just writing a format into memory");
+            write!(&mut s, "{}", num).expect(msg);
         }
         s
     }
