@@ -32,7 +32,10 @@ fn main() -> Result<()> {
     match part_two(&mut VM::default_from_source(&mut BufReader::new(
         io::stdin().lock(),
     ))?) {
-        Ok(answer) => Ok(println!("part two found answer {}", answer)),
+        Ok(answer) => {
+            println!("part two found answer {}", answer);
+            Ok(())
+        }
         err => err.map(|_| ()),
     }
 }

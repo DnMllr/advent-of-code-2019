@@ -73,6 +73,7 @@ fn scan_for_intersections(list: &Vec<(i32, i32)>, coord: i32) -> impl Iterator<I
 }
 
 impl PartOne {
+    /*
     pub fn new() -> Self {
         Self {
             horizontal: HashMap::new(),
@@ -82,6 +83,7 @@ impl PartOne {
             mode: Mode::Input,
         }
     }
+    */
 
     fn horiz(&mut self, y: i32, start: i32, end: i32) {
         self.horizontal
