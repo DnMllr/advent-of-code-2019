@@ -334,30 +334,6 @@ impl<I: BufRead, O: Write> VM<I, O> {
         &self.memory[idx]
     }
 
-    pub fn load_left_operand_addr(&self) -> &i32 {
-        self.load(self.ip() + 1)
-    }
-
-    pub fn load_right_operand_addr(&self) -> &i32 {
-        self.load(self.ip() + 2)
-    }
-
-    pub fn load_output_addr(&self) -> &i32 {
-        self.load(self.ip() + 3)
-    }
-
-    pub fn load_left_operand(&self) -> &i32 {
-        self.load(*self.load_left_operand_addr() as usize)
-    }
-
-    pub fn load_right_operand(&self) -> &i32 {
-        self.load(*self.load_right_operand_addr() as usize)
-    }
-
-    pub fn load_output(&mut self) -> &mut i32 {
-        self.load_mut(*self.load_output_addr())
-    }
-
     pub fn load_mut(&mut self, idx: i32) -> &mut i32 {
         &mut self.memory[idx as usize]
     }
