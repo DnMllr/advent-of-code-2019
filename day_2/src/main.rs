@@ -1,5 +1,5 @@
 use std::io;
-use std::io::BufReader;
+use std::io::{BufRead, BufReader, Write};
 
 use anyhow::Result;
 use thiserror::Error;
@@ -12,7 +12,7 @@ pub enum ErrorKinds {
     NoResult,
 }
 
-fn part_two(vm: &mut VM) -> Result<usize> {
+fn part_two<I: BufRead, O: Write>(vm: &mut VM<I, O>) -> Result<i32> {
     let target = 19_690_720;
     for noun in 0..=99 {
         for verb in 0..=99 {
@@ -29,7 +29,7 @@ fn part_two(vm: &mut VM) -> Result<usize> {
 }
 
 fn main() -> Result<()> {
-    match part_two(&mut VM::from_source(&mut BufReader::new(
+    match part_two(&mut VM::default_from_source(&mut BufReader::new(
         io::stdin().lock(),
     ))?) {
         Ok(answer) => Ok(println!("part two found answer {}", answer)),
