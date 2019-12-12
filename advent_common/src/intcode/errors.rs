@@ -18,6 +18,8 @@ pub enum IOError {
     OutputError(io::Error),
     #[error("couldn't parse input into i32 {0}")]
     StringParseError(String),
+    #[error("out of static input")]
+    OutOfStaticInputError,
 }
 
 #[derive(Error, Debug)]

@@ -1,8 +1,7 @@
 use anyhow::Result;
-use std::io::{BufRead, Write};
 
 use crate::intcode::errors::{ErrorKinds, OutOfBoundsReference};
-use crate::intcode::VM;
+use crate::intcode::VMType;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Parameter {
@@ -27,7 +26,7 @@ impl Parameter {
         })
     }
 
-    pub fn read<I: BufRead, O: Write>(self, vm: &VM<I, O>) -> Result<i32> {
+    pub fn read<V: VMType>(self, vm: &V) -> Result<i32> {
         Ok(match self {
             Parameter::Immediate(x) => x,
             Parameter::Reference(r) => *vm.load(r as usize).ok_or(ErrorKinds::MemoryError(
@@ -36,7 +35,7 @@ impl Parameter {
         })
     }
 
-    pub fn read_mut<'a, I: BufRead, O: Write>(self, vm: &'a mut VM<I, O>) -> Result<&'a mut i32> {
+    pub fn read_mut<V: VMType>(self, vm: &mut V) -> Result<&mut i32> {
         match self {
             Parameter::Reference(r) => Ok(vm.load_mut(r).ok_or(ErrorKinds::MemoryError(
                 OutOfBoundsReference::ReferenceParameter,

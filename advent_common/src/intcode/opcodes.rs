@@ -1,7 +1,6 @@
-use crate::intcode::errors::{ErrorKinds, IOError, OutOfBoundsReference};
+use crate::intcode::errors::{ErrorKinds, OutOfBoundsReference};
 use crate::intcode::parameters::{BinaryParams, ConditionParams, UnaryParams};
-use crate::intcode::VM;
-use std::io::{BufRead, Write};
+use crate::intcode::{ReadInt, VMType, WriteInt};
 
 use anyhow::Result;
 
@@ -76,35 +75,15 @@ impl OpCode {
         }
     }
 
-    fn prompt<I: BufRead, O: Write>(vm: &mut VM<I, O>) -> Result<usize> {
-        OpCode::write_str(vm, "please enter int> ")
+    fn write_int<V: VMType>(vm: &mut V, i: i32) -> Result<()> {
+        vm.port().write_int(i)
     }
 
-    fn write_str<I: BufRead, O: Write>(vm: &mut VM<I, O>, content: &str) -> Result<usize> {
-        vm.write(content.as_bytes())
-            .and_then(|amount| vm.flush().and_then(|_| Ok(amount)))
-            .map_err(|e| ErrorKinds::IOError(IOError::OutputError(e)).into())
+    fn read_int<V: VMType>(vm: &mut V) -> Result<i32> {
+        vm.port().read_int()
     }
 
-    fn write_int<I: BufRead, O: Write>(vm: &mut VM<I, O>, i: i32) -> Result<usize> {
-        OpCode::write_str(vm, &format!("output>>> {}\n", i))
-    }
-
-    fn read_line<I: BufRead, O: Write>(vm: &mut VM<I, O>) -> Result<String> {
-        let mut s = String::new();
-        vm.read_line(&mut s)
-            .map_err(|err| ErrorKinds::IOError(IOError::InputError(err)))?;
-        Ok(s)
-    }
-
-    fn read_int<I: BufRead, O: Write>(vm: &mut VM<I, O>) -> Result<i32> {
-        let s = OpCode::read_line(vm)?;
-        s.trim()
-            .parse()
-            .map_err(|_| ErrorKinds::IOError(IOError::StringParseError(s)).into())
-    }
-
-    pub fn exec<I: BufRead, O: Write>(self, vm: &mut VM<I, O>) -> Result<bool> {
+    pub fn exec<V: VMType>(self, vm: &mut V) -> Result<bool> {
         match self {
             OpCode::Add(BinaryParams { left, right, out }) => {
                 *out.read_mut(vm)? = left.read(vm)? + right.read(vm)?;
@@ -113,7 +92,6 @@ impl OpCode {
                 *out.read_mut(vm)? = left.read(vm)? * right.read(vm)?;
             }
             OpCode::InputInteger(UnaryParams { value }) => {
-                OpCode::prompt(vm)?;
                 *value.read_mut(vm)? = OpCode::read_int(vm)?;
             }
             OpCode::OutputInteger(UnaryParams { value }) => {

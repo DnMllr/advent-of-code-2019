@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use anyhow::Result;
 use thiserror::Error;
 
-use advent_common::intcode::VM;
+use advent_common::intcode::{VMType, VM};
 
 #[derive(Error, Debug)]
 enum ErrorKinds {

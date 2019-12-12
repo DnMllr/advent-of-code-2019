@@ -1,10 +1,10 @@
 use std::io;
-use std::io::{BufRead, BufReader, Write};
+use std::io::BufReader;
 
 use anyhow::Result;
 use thiserror::Error;
 
-use advent_common::intcode::VM;
+use advent_common::intcode::{VMType, VM};
 
 #[derive(Error, Debug)]
 pub enum ErrorKinds {
@@ -15,7 +15,7 @@ pub enum ErrorKinds {
     OutOfBounds,
 }
 
-fn part_two<I: BufRead, O: Write>(vm: &mut VM<I, O>) -> Result<i32> {
+fn part_two<V: VMType>(vm: &mut V) -> Result<i32> {
     let target = 19_690_720;
     for noun in 0..=99 {
         for verb in 0..=99 {

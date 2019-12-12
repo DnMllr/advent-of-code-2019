@@ -34,6 +34,14 @@
       <sourceFolder url="file://$MODULE_DIR$/day_6/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/day_6/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/day_6/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/day_8/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/day_8/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/day_8/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/day_8/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/day_7/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/day_7/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/day_7/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/day_7/benches" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/advent_common/target" />
       <excludeFolder url="file://$MODULE_DIR$/day_1/target" />
       <excludeFolder url="file://$MODULE_DIR$/day_2/target" />
@@ -41,6 +49,8 @@
       <excludeFolder url="file://$MODULE_DIR$/day_4/target" />
       <excludeFolder url="file://$MODULE_DIR$/day_5/target" />
       <excludeFolder url="file://$MODULE_DIR$/day_6/target" />
+      <excludeFolder url="file://$MODULE_DIR$/day_7/target" />
+      <excludeFolder url="file://$MODULE_DIR$/day_8/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

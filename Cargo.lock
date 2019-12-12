@@ -102,9 +102,21 @@ name = "day_6"
 version = "0.1.0"
 dependencies = [
  "anyhow 1.0.25 (registry+https://github.com/rust-lang/crates.io-index)",
- "rayon 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "thiserror 1.0.9 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
+
+[[package]]
+name = "day_7"
+version = "0.1.0"
+dependencies = [
+ "advent_common 0.1.0",
+ "anyhow 1.0.25 (registry+https://github.com/rust-lang/crates.io-index)",
+ "itertools 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "day_8"
+version = "0.1.0"
 
 [[package]]
 name = "either"
