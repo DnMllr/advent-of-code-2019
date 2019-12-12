@@ -27,16 +27,20 @@ impl Parameter {
         })
     }
 
-    pub fn read<I: BufRead, O: Write>(&self, vm: &VM<I, O>) -> Result<i32> {
-        Ok(match *self {
+    pub fn read<I: BufRead, O: Write>(self, vm: &VM<I, O>) -> Result<i32> {
+        Ok(match self {
             Parameter::Immediate(x) => x,
-            Parameter::Reference(r) => *vm.load(r as usize).ok_or(ErrorKinds::MemoryError(OutOfBoundsReference::ReferenceParameter))?,
+            Parameter::Reference(r) => *vm.load(r as usize).ok_or(ErrorKinds::MemoryError(
+                OutOfBoundsReference::ReferenceParameter,
+            ))?,
         })
     }
 
-    pub fn read_mut<'a, I: BufRead, O: Write>(&self, vm: &'a mut VM<I, O>) -> Result<&'a mut i32> {
-        match *self {
-            Parameter::Reference(r) => Ok(vm.load_mut(r).ok_or(ErrorKinds::MemoryError(OutOfBoundsReference::ReferenceParameter))?),
+    pub fn read_mut<'a, I: BufRead, O: Write>(self, vm: &'a mut VM<I, O>) -> Result<&'a mut i32> {
+        match self {
+            Parameter::Reference(r) => Ok(vm.load_mut(r).ok_or(ErrorKinds::MemoryError(
+                OutOfBoundsReference::ReferenceParameter,
+            ))?),
             Parameter::Immediate(_) => Err(ErrorKinds::ImmediateModeOutputError.into()),
         }
     }

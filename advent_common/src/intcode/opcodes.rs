@@ -120,7 +120,11 @@ impl OpCode {
                 OpCode::write_int(vm, value.read(vm)?)?;
             }
             OpCode::LessThan(BinaryParams { left, right, out }) => {
-                *out.read_mut(vm)? = if left.read(vm)? < right.read(vm)? { 1 } else { 0 };
+                *out.read_mut(vm)? = if left.read(vm)? < right.read(vm)? {
+                    1
+                } else {
+                    0
+                };
             }
             OpCode::Equals(BinaryParams { left, right, out }) => {
                 *out.read_mut(vm)? = if left.read(vm)? == right.read(vm)? {

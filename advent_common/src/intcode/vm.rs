@@ -4,7 +4,7 @@ use std::io::{BufRead, BufReader, Read, Stdin, Stdout, Write};
 
 use anyhow::Result;
 
-use crate::intcode::errors::{ErrorKinds, OutOfBoundsReference};
+use crate::intcode::errors::ErrorKinds;
 use crate::intcode::opcodes::OpCode;
 
 pub struct VM<I: BufRead, O: Write> {
@@ -96,7 +96,9 @@ impl<I: BufRead, O: Write> VM<I, O> {
     pub fn eval(&mut self) -> Result<i32> {
         loop {
             if self.load_inst()?.exec(self)? {
-                return Ok(*self.load(0).expect("there should always be at least the first memory address"));
+                return Ok(*self
+                    .load(0)
+                    .expect("there should always be at least the first memory address"));
             }
         }
     }
