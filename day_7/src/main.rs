@@ -56,7 +56,7 @@ fn part_2(program: &Program) -> i32 {
                 let mut exited = false;
                 for vm in chain.iter_mut() {
                     match vm.run_with_input(output) {
-                        Status::Exited(err) => exited = true,
+                        Status::Exited(_) => exited = true,
                         Status::HasOutput(out) => {
                             output = out;
                             if let Status::Exited(_) = vm.run() {

@@ -9,7 +9,7 @@ use crate::intcode::{Program, Runable, Status, VMType};
 
 enum InternalStatus {
     Running,
-    Exited,
+    Exited(Result<(), ()>),
     Outputting(i32),
     WaitingOnInputTo(Parameter),
 }
@@ -46,13 +46,13 @@ impl Runable for VM {
     fn run_with_input(&mut self, input: i32) -> Status {
         if let InternalStatus::WaitingOnInputTo(p) = self.status {
             if let Some(err) = p.read_mut(self).map(|r| *r = input).err() {
-                self.status = InternalStatus::Exited;
+                self.status = InternalStatus::Exited(Err(()));
                 return Status::Exited(Err(err));
             }
             self.status = InternalStatus::Running;
             self.run()
         } else {
-            self.status = InternalStatus::Exited;
+            self.status = InternalStatus::Exited(Err(()));
             Status::Exited(Err(ErrorKinds::UnexpectedInputError.into()))
         }
     }
@@ -60,19 +60,25 @@ impl Runable for VM {
     fn run(&mut self) -> Status {
         match self.status {
             InternalStatus::WaitingOnInputTo(_) => {
-                self.status = InternalStatus::Exited;
+                self.status = InternalStatus::Exited(Err(()));
                 Status::Exited(Err(ErrorKinds::ExpectedInputError.into()))
             }
-            InternalStatus::Exited => Status::Exited(Ok(())),
+            InternalStatus::Exited(e) => {
+                Status::Exited(e.map_err(|_| ErrorKinds::RanAfterErrorExitError.into()))
+            }
             _ => {
                 self.status = InternalStatus::Running;
                 loop {
                     if let Some(e) = self.load_inst().and_then(|inst| inst.exec(self)).err() {
-                        self.status = InternalStatus::Exited;
+                        self.status = InternalStatus::Exited(Err(()));
                         return Status::Exited(Err(e));
                     }
                     match &self.status {
-                        InternalStatus::Exited => return Status::Exited(Ok(())),
+                        InternalStatus::Exited(e) => {
+                            return Status::Exited(
+                                e.map_err(|_| ErrorKinds::RanAfterErrorExitError.into()),
+                            )
+                        }
                         InternalStatus::Outputting(i) => return Status::HasOutput(*i),
                         InternalStatus::WaitingOnInputTo(_) => return Status::RequiresInput,
                         InternalStatus::Running => continue,
@@ -120,7 +126,7 @@ impl VMType for VM {
     }
 
     fn exit(&mut self) {
-        self.status = InternalStatus::Exited;
+        self.status = InternalStatus::Exited(Ok(()));
     }
 }
 

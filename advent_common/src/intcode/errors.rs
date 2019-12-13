@@ -24,6 +24,8 @@ pub enum IOError {
 
 #[derive(Error, Debug)]
 pub enum ErrorKinds {
+    #[error("the vm exited with error")]
+    RanAfterErrorExitError,
     #[error("failed to read to internal string")]
     ReadToString(#[from] io::Error),
     #[error("parse error: invalid uint string {0}")]
