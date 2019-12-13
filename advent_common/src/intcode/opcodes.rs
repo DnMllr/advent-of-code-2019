@@ -1,6 +1,6 @@
 use crate::intcode::errors::{ErrorKinds, OutOfBoundsReference};
 use crate::intcode::parameters::{BinaryParams, ConditionParams, UnaryParams};
-use crate::intcode::{ReadInt, VMType, WriteInt};
+use crate::intcode::VMType;
 
 use anyhow::Result;
 
@@ -75,14 +75,6 @@ impl OpCode {
         }
     }
 
-    fn write_int<V: VMType>(vm: &mut V, i: i32) -> Result<()> {
-        vm.port().write_int(i)
-    }
-
-    fn read_int<V: VMType>(vm: &mut V) -> Result<i32> {
-        vm.port().read_int()
-    }
-
     pub fn exec<V: VMType>(self, vm: &mut V) -> Result<bool> {
         match self {
             OpCode::Add(BinaryParams { left, right, out }) => {
@@ -92,10 +84,10 @@ impl OpCode {
                 *out.read_mut(vm)? = left.read(vm)? * right.read(vm)?;
             }
             OpCode::InputInteger(UnaryParams { value }) => {
-                *value.read_mut(vm)? = OpCode::read_int(vm)?;
+                vm.input_to(value);
             }
             OpCode::OutputInteger(UnaryParams { value }) => {
-                OpCode::write_int(vm, value.read(vm)?)?;
+                vm.output(value.read(vm)?);
             }
             OpCode::LessThan(BinaryParams { left, right, out }) => {
                 *out.read_mut(vm)? = if left.read(vm)? < right.read(vm)? {
@@ -123,7 +115,10 @@ impl OpCode {
                     return Ok(false);
                 }
             }
-            OpCode::Exit => return Ok(true),
+            OpCode::Exit => {
+                vm.exit();
+                return Ok(true);
+            }
         };
         vm.advance(self.len());
         Ok(false)

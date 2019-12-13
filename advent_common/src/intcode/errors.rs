@@ -36,4 +36,8 @@ pub enum ErrorKinds {
     IOError(IOError),
     #[error("output parameter was in immediate mode")]
     ImmediateModeOutputError,
+    #[error("input provided to a vm which wasn't expecting input")]
+    UnexpectedInputError,
+    #[error("no input provided to a vm which was expecting input")]
+    ExpectedInputError,
 }

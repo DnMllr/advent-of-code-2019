@@ -4,7 +4,7 @@ use std::io::BufReader;
 use anyhow::Result;
 use thiserror::Error;
 
-use advent_common::intcode::{VMType, VM};
+use advent_common::intcode::{Program, VMType, VM};
 
 #[derive(Error, Debug)]
 pub enum ErrorKinds {
@@ -15,18 +15,18 @@ pub enum ErrorKinds {
     OutOfBounds,
 }
 
-fn part_two<V: VMType>(vm: &mut V) -> Result<i32> {
+fn part_two<V: VMType>(vm: &mut V, program: &Program) -> Result<i32> {
     let target = 19_690_720;
     for noun in 0..=99 {
         for verb in 0..=99 {
-            vm.reset();
+            vm.load_program(program);
             vm.load_mut(1)
                 .ok_or(ErrorKinds::OutOfBounds)
                 .map(|r| *r = noun)?;
             vm.load_mut(2)
                 .ok_or(ErrorKinds::OutOfBounds)
                 .map(|r| *r = verb)?;
-            vm.eval()?;
+            vm.run();
             if vm.load(0) == Some(&target) {
                 return Ok(100 * noun + verb);
             }
@@ -36,9 +36,9 @@ fn part_two<V: VMType>(vm: &mut V) -> Result<i32> {
 }
 
 fn main() -> Result<()> {
-    match part_two(&mut VM::default_from_source(&mut BufReader::new(
-        io::stdin().lock(),
-    ))?) {
+    let program = Program::from_reader(&mut BufReader::new(io::stdin().lock()))?;
+    let mut vm = VM::new();
+    match part_two(&mut vm, &program) {
         Ok(answer) => {
             println!("part two found answer {}", answer);
             Ok(())

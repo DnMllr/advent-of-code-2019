@@ -6,7 +6,8 @@ use std::path::PathBuf;
 use anyhow::Result;
 use thiserror::Error;
 
-use advent_common::intcode::{VMType, VM};
+use advent_common::intcode::ports::stdport;
+use advent_common::intcode::{Executor, Program, Runner, VMType, VM};
 
 #[derive(Error, Debug)]
 enum ErrorKinds {
@@ -20,8 +21,13 @@ fn main() -> Result<()> {
     if let Some(file_name) = std::env::args().nth(1) {
         let p = PathBuf::from(file_name);
         let f = File::open(p).map_err(ErrorKinds::UnableToOpen)?;
-        let mut vm = VM::default_from_source(&mut BufReader::new(f))?;
-        vm.eval()?;
+        let program = Program::from_reader(&mut BufReader::new(f))?;
+        let mut vm = VM::new();
+        vm.load_program(&program);
+        for result in Executor::run(vm, stdport()) {
+            result?;
+        }
+        println!("exited.");
         Ok(())
     } else {
         Err(ErrorKinds::NoFileProvided.into())

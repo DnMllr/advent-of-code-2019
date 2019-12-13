@@ -1,9 +1,13 @@
-use std::io::{BufRead, Write};
+use std::io::{BufRead, BufReader, Stdin, Stdout, Write};
 
 use anyhow::{Error, Result};
 
 use crate::intcode::errors::{ErrorKinds, IOError};
 use crate::intcode::{ReadInt, WriteInt};
+
+pub fn stdport() -> Port<BufReader<Stdin>, Stdout> {
+    Port::new(BufReader::new(std::io::stdin()), std::io::stdout())
+}
 
 pub struct Port<I: BufRead, O: Write> {
     buffer: String,
@@ -13,7 +17,7 @@ pub struct Port<I: BufRead, O: Write> {
 
 impl<I: BufRead, O: Write> WriteInt for Port<I, O> {
     fn write_int(&mut self, i: i32) -> Result<()> {
-        write!(self.output, "{}", i)
+        writeln!(self.output, "output >>> {}", i)
             .map_err(|e| ErrorKinds::IOError(IOError::OutputError(e)).into())
     }
 }
@@ -21,10 +25,17 @@ impl<I: BufRead, O: Write> WriteInt for Port<I, O> {
 impl<I: BufRead, O: Write> ReadInt for Port<I, O> {
     fn read_int(&mut self) -> Result<i32> {
         self.buffer.clear();
+        self.output
+            .write_all("please enter an int <<< ".as_bytes())
+            .map_err(|e| ErrorKinds::IOError(IOError::OutputError(e)))?;
+        self.output
+            .flush()
+            .map_err(|e| ErrorKinds::IOError(IOError::OutputError(e)))?;
         self.input
             .read_line(&mut self.buffer)
             .map_err(|e| ErrorKinds::IOError(IOError::InputError(e)))?;
         self.buffer
+            .trim()
             .parse()
             .map_err(|_| ErrorKinds::IOError(IOError::StringParseError(self.buffer.clone())).into())
     }

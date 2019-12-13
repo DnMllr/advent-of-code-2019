@@ -1,62 +1,28 @@
-use std::fmt::Write as FWrite;
-use std::io;
-use std::io::{BufRead, BufReader, Stdin, Stdout};
+use std::fmt::Write;
 
 use anyhow::Result;
 
 use crate::intcode::errors::ErrorKinds;
 use crate::intcode::opcodes::OpCode;
-use crate::intcode::{Port, PortType, VMType};
+use crate::intcode::parameters::Parameter;
+use crate::intcode::{Program, Runable, Status, VMType};
 
-pub struct VM<P: PortType> {
-    port: P,
-    initial_program: Vec<i32>,
+enum InternalStatus {
+    Running,
+    Exited,
+    Outputting(i32),
+    WaitingOnInputTo(Parameter),
+}
+
+pub struct VM {
+    status: InternalStatus,
     memory: Vec<i32>,
     instruction_pointer: usize,
 }
 
-impl VM<Port<BufReader<Stdin>, Stdout>> {
-    pub fn default() -> Self {
+impl VM {
+    pub fn new() -> Self {
         Default::default()
-    }
-
-    pub fn default_from_source<T: BufRead>(reader: &mut T) -> Result<Self> {
-        Self::default().read_source(reader)
-    }
-}
-
-impl<P: PortType> VM<P> {
-    pub fn with_port(port: P) -> Self {
-        Self {
-            port,
-            initial_program: Vec::with_capacity(64),
-            memory: Vec::with_capacity(64),
-            instruction_pointer: 0,
-        }
-    }
-
-    pub fn read_source<T: BufRead>(mut self, reader: &mut T) -> Result<Self> {
-        self.initial_program.clear();
-        self.memory.clear();
-        self.reset();
-        let mut s = String::new();
-        reader
-            .read_to_string(&mut s)
-            .map_err(ErrorKinds::ReadToString)?;
-        for c in s.split(',') {
-            self.add_raw_instruction(
-                c.trim()
-                    .parse()
-                    .map_err(|_| ErrorKinds::StringParseError(c.to_owned()))?,
-            );
-        }
-        Ok(self)
-    }
-
-    fn add_raw_instruction(&mut self, instruction: i32) -> &mut Self {
-        self.initial_program.push(instruction);
-        self.memory.push(instruction);
-        self
     }
 
     fn load_inst(&self) -> Result<OpCode> {
@@ -76,15 +42,59 @@ impl<P: PortType> VM<P> {
     }
 }
 
-impl<P: PortType> VMType for VM<P> {
-    type Port = P;
-
-    fn reset(&mut self) -> &mut Self {
-        for (left, right) in self.memory.iter_mut().zip(self.initial_program.iter()) {
-            *left = *right;
+impl Runable for VM {
+    fn run_with_input(&mut self, input: i32) -> Status {
+        if let InternalStatus::WaitingOnInputTo(p) = self.status {
+            if let Some(err) = p.read_mut(self).map(|r| *r = input).err() {
+                self.status = InternalStatus::Exited;
+                return Status::Exited(Err(err));
+            }
+            self.status = InternalStatus::Running;
+            self.run()
+        } else {
+            self.status = InternalStatus::Exited;
+            Status::Exited(Err(ErrorKinds::UnexpectedInputError.into()))
         }
+    }
+
+    fn run(&mut self) -> Status {
+        match self.status {
+            InternalStatus::WaitingOnInputTo(_) => {
+                self.status = InternalStatus::Exited;
+                Status::Exited(Err(ErrorKinds::ExpectedInputError.into()))
+            }
+            InternalStatus::Exited => Status::Exited(Ok(())),
+            _ => {
+                self.status = InternalStatus::Running;
+                loop {
+                    if let Some(e) = self.load_inst().and_then(|inst| inst.exec(self)).err() {
+                        self.status = InternalStatus::Exited;
+                        return Status::Exited(Err(e));
+                    }
+                    match &self.status {
+                        InternalStatus::Exited => return Status::Exited(Ok(())),
+                        InternalStatus::Outputting(i) => return Status::HasOutput(*i),
+                        InternalStatus::WaitingOnInputTo(_) => return Status::RequiresInput,
+                        InternalStatus::Running => continue,
+                    }
+                }
+            }
+        }
+    }
+}
+
+impl VMType for VM {
+    fn input_to(&mut self, location: Parameter) {
+        self.status = InternalStatus::WaitingOnInputTo(location);
+    }
+
+    fn output(&mut self, value: i32) {
+        self.status = InternalStatus::Outputting(value);
+    }
+
+    fn load_program(&mut self, program: &Program) {
+        program.load_to(&mut self.memory);
         self.instruction_pointer = 0;
-        self
     }
 
     fn ip(&self) -> usize {
@@ -108,23 +118,17 @@ impl<P: PortType> VMType for VM<P> {
         self
     }
 
-    fn eval(&mut self) -> Result<i32> {
-        loop {
-            if self.load_inst()?.exec(self)? {
-                return Ok(*self
-                    .load(0)
-                    .expect("there should always be at least the first memory address"));
-            }
-        }
-    }
-
-    fn port(&mut self) -> &mut Self::Port {
-        &mut self.port
+    fn exit(&mut self) {
+        self.status = InternalStatus::Exited;
     }
 }
 
-impl Default for VM<Port<BufReader<Stdin>, Stdout>> {
+impl Default for VM {
     fn default() -> Self {
-        Self::with_port(Port::new(BufReader::new(io::stdin()), io::stdout()))
+        Self {
+            status: InternalStatus::Running,
+            memory: Vec::with_capacity(64),
+            instruction_pointer: 0,
+        }
     }
 }
