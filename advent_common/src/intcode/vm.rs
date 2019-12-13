@@ -94,6 +94,7 @@ impl VMType for VM {
 
     fn load_program(&mut self, program: &Program) {
         program.load_to(&mut self.memory);
+        self.status = InternalStatus::Running;
         self.instruction_pointer = 0;
     }
 
