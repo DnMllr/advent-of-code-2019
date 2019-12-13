@@ -130,7 +130,7 @@ impl Display for OpCode {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         match self {
             OpCode::Add(p) => write!(f, "add\t\t{}.", p),
-            OpCode::Mul(p) => write!(f, "sub\t\t{}.", p),
+            OpCode::Mul(p) => write!(f, "mul\t\t{}.", p),
             OpCode::LessThan(p) => write!(f, "lt\t\t{}.", p),
             OpCode::Equals(p) => write!(f, "eq\t\t{}.", p),
             OpCode::InputInteger(p) => write!(f, "in\t\t{}.", p),

@@ -50,7 +50,6 @@ impl Display for Program {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         let mut memory_location = 0;
         let mut instruction_count = 0;
-        let mut raw_mode = false;
         writeln!(f, "inst:mem \t\tcode\tparams")?;
         writeln!(
             f,
@@ -58,26 +57,16 @@ impl Display for Program {
         )?;
         while memory_location < self.inner.len() {
             write!(f, "{:04}:{:04}\t\t", instruction_count, memory_location)?;
-            if !raw_mode {
-                match OpCode::parse(&self.inner[memory_location..]) {
-                    Ok(code) => {
-                        writeln!(f, "{}", code)?;
-                        memory_location += code.len();
-                    }
-                    Err(e) => {
-                        let val = self.inner[memory_location];
-                        if val != 0 {
-                            writeln!(f, "\n|||parse error {}|||", e)?;
-                            return Ok(());
-                        }
-                        raw_mode = true;
-                        writeln!(f, "{}", val)?;
-                        memory_location += 1;
-                    }
+            match OpCode::parse(&self.inner[memory_location..]) {
+                Ok(code) => {
+                    writeln!(f, "{}", code)?;
+                    memory_location += code.len();
                 }
-            } else {
-                writeln!(f, "{}", self.inner[memory_location])?;
-                memory_location += 1;
+                Err(_) => {
+                    let val = self.inner[memory_location];
+                    writeln!(f, "{}", val)?;
+                    memory_location += 1;
+                }
             }
             instruction_count += 1;
         }
