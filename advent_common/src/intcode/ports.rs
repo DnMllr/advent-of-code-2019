@@ -26,7 +26,7 @@ impl<I: BufRead, O: Write> ReadInt for Port<I, O> {
     fn read_int(&mut self) -> Result<i32> {
         self.buffer.clear();
         self.output
-            .write_all("please enter an int <<< ".as_bytes())
+            .write_all(b"please enter an int <<< ")
             .map_err(|e| ErrorKinds::IOError(IOError::OutputError(e)))?;
         self.output
             .flush()

@@ -28,7 +28,7 @@ fn part_1(program: &Program) -> i32 {
                     let mut port = VecPort::new();
                     port.input(phase);
                     port.input(state);
-                    for output in Executor::run(vm, port) {
+                    if let Some(output) = Executor::run(vm, port).next() {
                         return output;
                     }
                     Err(Error::msg("no output"))

@@ -3,6 +3,7 @@ use crate::intcode::parameters::{BinaryParams, ConditionParams, UnaryParams};
 use crate::intcode::VMType;
 
 use anyhow::Result;
+use std::fmt::{Display, Error, Formatter};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum OpCode {
@@ -122,5 +123,21 @@ impl OpCode {
         };
         vm.advance(self.len());
         Ok(false)
+    }
+}
+
+impl Display for OpCode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match self {
+            OpCode::Add(p) => write!(f, "add\t\t{}.", p),
+            OpCode::Mul(p) => write!(f, "sub\t\t{}.", p),
+            OpCode::LessThan(p) => write!(f, "lt\t\t{}.", p),
+            OpCode::Equals(p) => write!(f, "eq\t\t{}.", p),
+            OpCode::InputInteger(p) => write!(f, "in\t\t{}.", p),
+            OpCode::OutputInteger(p) => write!(f, "out\t\t{}.", p),
+            OpCode::JumpIfTrue(p) => write!(f, "jt\t\t{}.", p),
+            OpCode::JumpIfFalse(p) => write!(f, "jf\t\t{}.", p),
+            OpCode::Exit => write!(f, "exit."),
+        }
     }
 }

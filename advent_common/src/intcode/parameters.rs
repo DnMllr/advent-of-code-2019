@@ -2,6 +2,7 @@ use anyhow::Result;
 
 use crate::intcode::errors::{ErrorKinds, OutOfBoundsReference};
 use crate::intcode::VMType;
+use std::fmt::{Display, Error, Formatter};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Parameter {
@@ -45,6 +46,15 @@ impl Parameter {
     }
 }
 
+impl Display for Parameter {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match self {
+            Parameter::Immediate(val) => write!(f, " {:04}", val),
+            Parameter::Reference(val) => write!(f, "&{:04}", val),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct BinaryParams {
     pub left: Parameter,
@@ -62,6 +72,16 @@ impl BinaryParams {
     }
 }
 
+impl Display for BinaryParams {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "[ left:\t{}, right:\t{}, out:\t{} ]",
+            self.left, self.right, self.out
+        )
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct UnaryParams {
     pub value: Parameter,
@@ -72,6 +92,12 @@ impl UnaryParams {
         Ok(Self {
             value: Parameter::new(1, parameters & 4 > 0, instructions)?,
         })
+    }
+}
+
+impl Display for UnaryParams {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "[ val:\t{} ]", self.value)
     }
 }
 
@@ -87,5 +113,11 @@ impl ConditionParams {
             test: Parameter::new(1, parameters & 4 > 0, instructions)?,
             location: Parameter::new(2, parameters & 2 > 0, instructions)?,
         })
+    }
+}
+
+impl Display for ConditionParams {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "[ test:\t{}, jump_to:\t{} ]", self.test, self.location)
     }
 }

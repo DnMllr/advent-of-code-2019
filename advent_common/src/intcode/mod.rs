@@ -50,7 +50,7 @@ pub struct Executor<V: VMType, P: PortType> {
 impl<V: VMType, P: PortType> Executor<V, P> {
     fn on_exit(&mut self, status: Status) -> Option<anyhow::Result<i32>> {
         match status {
-            Status::Exited(e) => e.err().map(|e| Err(e)),
+            Status::Exited(e) => e.err().map(Err),
             Status::HasOutput(out) => {
                 if let Some(e) = self.p.write_int(out).err() {
                     Some(Err(e))
