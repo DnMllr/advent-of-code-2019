@@ -1,6 +1,6 @@
 use std::io::BufReader;
 
-use advent_common::intcode::{Executor, Program, Runner, VMType, VecPort, VM, Runable, Status};
+use advent_common::intcode::{Executor, Program, Runable, Runner, Status, VMType, VecPort, VM};
 use itertools::Itertools;
 
 use anyhow::{Error, Result};
@@ -56,26 +56,23 @@ fn part_2(program: &Program) -> i32 {
                 let mut exited = false;
                 for vm in chain.iter_mut() {
                     match vm.run_with_input(output) {
-                        Status::Exited(err) => {
-                            if err.is_err() {
-                                println!("error {:?}", err);
-                            }
-                            exited = true
-                        },
+                        Status::Exited(err) => exited = true,
                         Status::HasOutput(out) => {
                             output = out;
                             if let Status::Exited(_) = vm.run() {
                                 exited = true;
                             }
-                        },
+                        }
                         Status::RequiresInput => panic!("vm requested input two times in a row"),
                     }
                 }
                 if exited {
-                    return output
+                    return output;
                 }
             }
-        }).max().expect("there should be an answer")
+        })
+        .max()
+        .expect("there should be an answer")
 }
 
 fn main() -> Result<()> {
@@ -114,7 +111,9 @@ mod tests {
 
     #[test]
     fn test_part_2_1() -> Result<()> {
-        let program = Program::from_source("3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5")?;
+        let program = Program::from_source(
+            "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5",
+        )?;
         assert_eq!(part_2(&program), 139629729, "part 2 first example");
         Ok(())
     }
