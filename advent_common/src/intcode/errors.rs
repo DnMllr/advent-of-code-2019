@@ -6,6 +6,8 @@ use thiserror::Error;
 pub enum OutOfBoundsReference {
     #[error("opcode referenced out of bounds memory")]
     ReferenceParameter,
+    #[error("relative opcode referenced out of bounds memory")]
+    RelativeParameter,
     #[error("opcode expected more parameters")]
     OpCodeLength,
 }

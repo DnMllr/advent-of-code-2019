@@ -26,14 +26,13 @@ impl Memory {
         self.buf.as_mut()
     }
 
-    pub fn iter(&self) -> impl Iterator<Item=&i64> {
+    pub fn iter(&self) -> impl Iterator<Item = &i64> {
         self.buf.iter()
     }
 
-    pub fn iter_mut(&mut self) -> impl Iterator<Item=&mut i64> {
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut i64> {
         self.buf.iter_mut()
     }
-
 }
 
 impl TMemory for Memory {

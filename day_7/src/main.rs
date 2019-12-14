@@ -46,7 +46,8 @@ fn part_2(program: &Program) -> i64 {
         .permutations(5)
         .map(move |combo| {
             for (vm, &phase) in chain.iter_mut().zip(combo.iter()) {
-                vm.load_program(program).expect("there should be enough memory to load the program");
+                vm.load_program(program)
+                    .expect("there should be enough memory to load the program");
                 if let Status::RequiresInput = vm.run() {
                     vm.run_with_input(phase);
                 }

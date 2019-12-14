@@ -2,11 +2,11 @@ use std::fmt::Write;
 
 use anyhow::Result;
 
-use crate::intcode::memory::Memory;
 use crate::intcode::errors::ErrorKinds;
+use crate::intcode::memory::Memory;
 use crate::intcode::opcodes::OpCode;
 use crate::intcode::parameters::Parameter;
-use crate::intcode::{Program, Runable, Status, VMType, Memory as MemoryT};
+use crate::intcode::{Memory as MemoryT, Program, Runable, Status, VMType};
 
 enum InternalStatus {
     Running,

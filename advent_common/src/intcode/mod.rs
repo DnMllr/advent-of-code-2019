@@ -1,7 +1,7 @@
 mod errors;
+mod memory;
 mod opcodes;
 mod parameters;
-mod memory;
 pub mod ports;
 pub mod program;
 pub mod status;
