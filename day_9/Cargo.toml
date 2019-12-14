@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 advent_common = { path="../advent_common" }
+anyhow = "1.0.25"

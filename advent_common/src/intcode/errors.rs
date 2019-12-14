@@ -32,7 +32,7 @@ pub enum ErrorKinds {
     ReadToString(#[from] io::Error),
     #[error("parse error: invalid uint string {0}")]
     StringParseError(String),
-    #[error("parse error: out of bound reference {0}")]
+    #[error("out of bound reference {0}")]
     MemoryError(OutOfBoundsReference),
     #[error("parse error: unknown opcode {0}")]
     UnknownOpcodeError(i64),
