@@ -16,7 +16,7 @@ pub enum IOError {
     InputError(io::Error),
     #[error("couldn't write to output {0}")]
     OutputError(io::Error),
-    #[error("couldn't parse input into i32 {0}")]
+    #[error("couldn't parse input into i64 {0}")]
     StringParseError(String),
     #[error("out of static input")]
     OutOfStaticInputError,
@@ -33,7 +33,7 @@ pub enum ErrorKinds {
     #[error("parse error: out of bound reference {0}")]
     MemoryError(OutOfBoundsReference),
     #[error("parse error: unknown opcode {0}")]
-    UnknownOpcodeError(i32),
+    UnknownOpcodeError(i64),
     #[error("io error: {0}")]
     IOError(IOError),
     #[error("output parameter was in immediate mode")]
@@ -42,4 +42,8 @@ pub enum ErrorKinds {
     UnexpectedInputError,
     #[error("no input provided to a vm which was expecting input")]
     ExpectedInputError,
+    #[error("not enough memory to load program")]
+    NotEnoughMemoryToLoadProgramError,
+    #[error("reference less than zero")]
+    ReferenceLessThanZeroError,
 }

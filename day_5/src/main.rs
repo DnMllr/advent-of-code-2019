@@ -23,7 +23,7 @@ fn main() -> Result<()> {
         let f = File::open(p).map_err(ErrorKinds::UnableToOpen)?;
         let program = Program::from_reader(&mut BufReader::new(f))?;
         let mut vm = VM::new();
-        vm.load_program(&program);
+        vm.load_program(&program)?;
         for result in Executor::run(vm, stdport()) {
             result?;
         }

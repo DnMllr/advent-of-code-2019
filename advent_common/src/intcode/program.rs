@@ -8,7 +8,7 @@ use std::fmt::{Display, Error, Formatter};
 
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct Program {
-    inner: Vec<i32>,
+    inner: Vec<i64>,
 }
 
 impl Program {
@@ -32,17 +32,18 @@ impl Program {
         Ok(Self { inner: vec })
     }
 
-    pub fn load(&self) -> Vec<i32> {
+    pub fn load(&self) -> Vec<i64> {
         self.inner.clone()
     }
 
-    pub fn load_to(&self, output: &mut Vec<i32>) {
-        while output.len() < self.inner.len() {
-            output.push(0);
+    pub fn load_to(&self, output: &mut [i64]) -> Result<()> {
+        if output.len() < self.inner.len() {
+            return Err(ErrorKinds::NotEnoughMemoryToLoadProgramError.into())
         }
         for (l, r) in self.inner.iter().zip(output.iter_mut()) {
             *r = *l
         }
+        Ok(())
     }
 }
 

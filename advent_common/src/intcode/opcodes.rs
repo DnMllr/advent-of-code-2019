@@ -18,7 +18,7 @@ pub enum OpCode {
     Exit,
 }
 
-static PLACES: [i32; 3] = [10000, 1000, 100];
+static PLACES: [i64; 3] = [10000, 1000, 100];
 
 impl OpCode {
     pub fn len(&self) -> usize {
@@ -30,7 +30,7 @@ impl OpCode {
         }
     }
 
-    pub fn parse(instructions: &[i32]) -> Result<Self> {
+    pub fn parse(instructions: &[i64]) -> Result<Self> {
         let mut parameters: u8 = 0;
         if let Some(first) = instructions.first() {
             let mut value = *first;

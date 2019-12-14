@@ -15,11 +15,11 @@ pub enum ErrorKinds {
     OutOfBounds,
 }
 
-fn part_two<V: VMType>(vm: &mut V, program: &Program) -> Result<i32> {
+fn part_two<V: VMType>(vm: &mut V, program: &Program) -> Result<i64> {
     let target = 19_690_720;
     for noun in 0..=99 {
         for verb in 0..=99 {
-            vm.load_program(program);
+            vm.load_program(program)?;
             vm.load_mut(1)
                 .ok_or(ErrorKinds::OutOfBounds)
                 .map(|r| *r = noun)?;

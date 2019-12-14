@@ -2,22 +2,24 @@ use std::fmt::Write;
 
 use anyhow::Result;
 
+use crate::intcode::memory::Memory;
 use crate::intcode::errors::ErrorKinds;
 use crate::intcode::opcodes::OpCode;
 use crate::intcode::parameters::Parameter;
-use crate::intcode::{Program, Runable, Status, VMType};
+use crate::intcode::{Program, Runable, Status, VMType, Memory as MemoryT};
 
 enum InternalStatus {
     Running,
     Exited(Result<(), ()>),
-    Outputting(i32),
+    Outputting(i64),
     WaitingOnInputTo(Parameter),
 }
 
 pub struct VM {
     status: InternalStatus,
-    memory: Vec<i32>,
+    memory: Memory,
     instruction_pointer: usize,
+    relative_base: i64,
 }
 
 impl VM {
@@ -26,7 +28,7 @@ impl VM {
     }
 
     fn load_inst(&self) -> Result<OpCode> {
-        OpCode::parse(&self.memory[self.ip()..])
+        OpCode::parse(&self.memory.as_inner()[self.ip()..])
     }
 
     pub fn dump(&self) -> String {
@@ -43,7 +45,7 @@ impl VM {
 }
 
 impl Runable for VM {
-    fn run_with_input(&mut self, input: i32) -> Status {
+    fn run_with_input(&mut self, input: i64) -> Status {
         if let InternalStatus::WaitingOnInputTo(p) = self.status {
             if let Some(err) = p.read_mut(self).map(|r| *r = input).err() {
                 self.status = InternalStatus::Exited(Err(()));
@@ -89,31 +91,47 @@ impl Runable for VM {
     }
 }
 
+impl super::Memory for VM {
+    fn load(&self, idx: usize) -> Option<&i64> {
+        self.memory.load(idx)
+    }
+
+    fn load_mut(&mut self, idx: usize) -> Option<&mut i64> {
+        self.memory.load_mut(idx)
+    }
+}
+
 impl VMType for VM {
     fn input_to(&mut self, location: Parameter) {
         self.status = InternalStatus::WaitingOnInputTo(location);
     }
 
-    fn output(&mut self, value: i32) {
+    fn output(&mut self, value: i64) {
         self.status = InternalStatus::Outputting(value);
     }
 
-    fn load_program(&mut self, program: &Program) {
-        program.load_to(&mut self.memory);
+    fn load_program(&mut self, program: &Program) -> Result<()> {
+        self.memory.zero();
+        program.load_to(self.memory.as_inner_mut())?;
         self.status = InternalStatus::Running;
         self.instruction_pointer = 0;
+        Ok(())
     }
 
     fn ip(&self) -> usize {
         self.instruction_pointer
     }
 
-    fn load(&self, idx: usize) -> Option<&i32> {
-        self.memory.get(idx)
+    fn offset_relative_base(&mut self, base: i64) {
+        self.relative_base += base;
     }
 
-    fn load_mut(&mut self, idx: i32) -> Option<&mut i32> {
-        self.memory.get_mut(idx as usize)
+    fn load_rel(&self, idx: i64) -> Option<&i64> {
+        self.load((self.relative_base + idx) as usize)
+    }
+
+    fn load_rel_mut(&mut self, idx: i64) -> Option<&mut i64> {
+        self.load_mut((self.relative_base + idx) as usize)
     }
 
     fn advance(&mut self, amount: usize) -> &mut Self {
@@ -134,8 +152,9 @@ impl Default for VM {
     fn default() -> Self {
         Self {
             status: InternalStatus::Running,
-            memory: Vec::with_capacity(64),
+            memory: Memory::new(),
             instruction_pointer: 0,
+            relative_base: 0,
         }
     }
 }

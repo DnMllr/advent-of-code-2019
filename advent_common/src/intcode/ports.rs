@@ -16,14 +16,14 @@ pub struct Port<I: BufRead, O: Write> {
 }
 
 impl<I: BufRead, O: Write> WriteInt for Port<I, O> {
-    fn write_int(&mut self, i: i32) -> Result<()> {
+    fn write_int(&mut self, i: i64) -> Result<()> {
         writeln!(self.output, "output >>> {}", i)
             .map_err(|e| ErrorKinds::IOError(IOError::OutputError(e)).into())
     }
 }
 
 impl<I: BufRead, O: Write> ReadInt for Port<I, O> {
-    fn read_int(&mut self) -> Result<i32> {
+    fn read_int(&mut self) -> Result<i64> {
         self.buffer.clear();
         self.output
             .write_all(b"please enter an int <<< ")
@@ -53,12 +53,12 @@ impl<I: BufRead, O: Write> Port<I, O> {
 
 #[derive(Default)]
 pub struct VecPort {
-    input: Vec<i32>,
-    output: Vec<i32>,
+    input: Vec<i64>,
+    output: Vec<i64>,
 }
 
 impl ReadInt for VecPort {
-    fn read_int(&mut self) -> Result<i32> {
+    fn read_int(&mut self) -> Result<i64> {
         if !self.input.is_empty() {
             Ok(self.input.remove(0))
         } else {
@@ -68,7 +68,7 @@ impl ReadInt for VecPort {
 }
 
 impl WriteInt for VecPort {
-    fn write_int(&mut self, i: i32) -> Result<(), Error> {
+    fn write_int(&mut self, i: i64) -> Result<(), Error> {
         self.output.push(i);
         Ok(())
     }
@@ -82,16 +82,16 @@ impl VecPort {
         }
     }
 
-    pub fn input(&mut self, i: i32) -> &mut Self {
+    pub fn input(&mut self, i: i64) -> &mut Self {
         self.input.push(i);
         self
     }
 
-    pub fn into_output(self) -> Vec<i32> {
+    pub fn into_output(self) -> Vec<i64> {
         self.output
     }
 
-    pub fn output(&self) -> impl Iterator<Item = &i32> {
+    pub fn output(&self) -> impl Iterator<Item = &i64> {
         self.output.iter()
     }
 }

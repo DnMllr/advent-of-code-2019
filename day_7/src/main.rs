@@ -17,14 +17,14 @@ fn make_program() -> Result<Program> {
     }
 }
 
-fn part_1(program: &Program) -> i32 {
+fn part_1(program: &Program) -> i64 {
     (0..=4)
         .permutations(5)
-        .map(move |combo| -> Result<i32> {
+        .map(move |combo| -> Result<i64> {
             Ok(combo.into_iter().fold(Ok(0), |s, phase| {
                 s.and_then(|state| {
                     let mut vm = VM::new();
-                    vm.load_program(program);
+                    vm.load_program(program)?;
                     let mut port = VecPort::new();
                     port.input(phase);
                     port.input(state);
@@ -40,13 +40,13 @@ fn part_1(program: &Program) -> i32 {
         .expect("there should be a max")
 }
 
-fn part_2(program: &Program) -> i32 {
+fn part_2(program: &Program) -> i64 {
     let mut chain: Vec<VM> = (0..5).map(|_| VM::new()).collect();
     (5..=9)
         .permutations(5)
         .map(move |combo| {
             for (vm, &phase) in chain.iter_mut().zip(combo.iter()) {
-                vm.load_program(program);
+                vm.load_program(program).expect("there should be enough memory to load the program");
                 if let Status::RequiresInput = vm.run() {
                     vm.run_with_input(phase);
                 }

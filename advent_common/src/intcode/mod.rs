@@ -1,6 +1,7 @@
 mod errors;
 mod opcodes;
 mod parameters;
+mod memory;
 pub mod ports;
 pub mod program;
 pub mod status;
@@ -13,11 +14,11 @@ pub use status::Status;
 pub use vm::VM;
 
 pub trait ReadInt {
-    fn read_int(&mut self) -> anyhow::Result<i32>;
+    fn read_int(&mut self) -> anyhow::Result<i64>;
 }
 
 pub trait WriteInt {
-    fn write_int(&mut self, i: i32) -> anyhow::Result<()>;
+    fn write_int(&mut self, i: i64) -> anyhow::Result<()>;
 }
 
 pub trait PortType: ReadInt + WriteInt {}
@@ -25,11 +26,11 @@ pub trait PortType: ReadInt + WriteInt {}
 impl<T: ReadInt + WriteInt> PortType for T {}
 
 pub trait Runable {
-    fn run_with_input(&mut self, input: i32) -> Status;
+    fn run_with_input(&mut self, input: i64) -> Status;
     fn run(&mut self) -> Status;
 }
 
-pub trait Runner: Iterator<Item = anyhow::Result<i32>> {
+pub trait Runner: Iterator<Item = anyhow::Result<i64>> {
     type VM: VMType;
     type Port: PortType;
 
@@ -48,7 +49,7 @@ pub struct Executor<V: VMType, P: PortType> {
 }
 
 impl<V: VMType, P: PortType> Executor<V, P> {
-    fn on_exit(&mut self, status: Status) -> Option<anyhow::Result<i32>> {
+    fn on_exit(&mut self, status: Status) -> Option<anyhow::Result<i64>> {
         match status {
             Status::Exited(e) => e.err().map(Err),
             Status::HasOutput(out) => {
@@ -70,7 +71,7 @@ impl<V: VMType, P: PortType> Executor<V, P> {
 }
 
 impl<V: VMType, P: PortType> Iterator for Executor<V, P> {
-    type Item = anyhow::Result<i32>;
+    type Item = anyhow::Result<i64>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let status = self.v.run();
@@ -89,7 +90,6 @@ impl<V: VMType, P: PortType> Runner for Executor<V, P> {
     fn port(&self) -> &Self::Port {
         &self.p
     }
-
     fn port_mut(&mut self) -> &mut Self::Port {
         &mut self.p
     }
@@ -97,19 +97,24 @@ impl<V: VMType, P: PortType> Runner for Executor<V, P> {
     fn vm(&self) -> &Self::VM {
         &self.v
     }
-
     fn vm_mut(&mut self) -> &mut Self::VM {
         &mut self.v
     }
 }
 
-pub trait VMType: Runable {
+pub trait Memory {
+    fn load(&self, idx: usize) -> Option<&i64>;
+    fn load_mut(&mut self, idx: usize) -> Option<&mut i64>;
+}
+
+pub trait VMType: Runable + Memory {
     fn input_to(&mut self, location: Parameter);
-    fn output(&mut self, output: i32);
-    fn load_program(&mut self, program: &Program);
+    fn output(&mut self, output: i64);
+    fn load_program(&mut self, program: &Program) -> anyhow::Result<()>;
     fn ip(&self) -> usize;
-    fn load(&self, idx: usize) -> Option<&i32>;
-    fn load_mut(&mut self, idx: i32) -> Option<&mut i32>;
+    fn offset_relative_base(&mut self, base: i64);
+    fn load_rel(&self, idx: i64) -> Option<&i64>;
+    fn load_rel_mut(&mut self, idx: i64) -> Option<&mut i64>;
     fn advance(&mut self, amount: usize) -> &mut Self;
     fn jump_to(&mut self, to: usize) -> &mut Self;
     fn exit(&mut self);
