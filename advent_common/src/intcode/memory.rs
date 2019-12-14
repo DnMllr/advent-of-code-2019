@@ -1,18 +1,18 @@
 use super::Memory as TMemory;
 use std::collections::HashMap;
 
-const IN_MEMORY_SIZE: usize = 1024;
+const BUFFER_SIZE: usize = 1024;
 
 pub struct Memory {
-    buf: Box<[i64; IN_MEMORY_SIZE]>,
-    large_memory_storage: HashMap<usize, i64>,
+    buf: Box<[i64; BUFFER_SIZE]>,
+    large_address_storage: HashMap<usize, i64>,
 }
 
 impl Memory {
     pub fn new() -> Self {
         Self {
-            buf: Box::new([0; IN_MEMORY_SIZE]),
-            large_memory_storage: HashMap::new(),
+            buf: Box::new([0; BUFFER_SIZE]),
+            large_address_storage: HashMap::new(),
         }
     }
 
@@ -20,15 +20,15 @@ impl Memory {
         for address in self.iter_mut() {
             *address = 0;
         }
-        self.large_memory_storage.clear();
+        self.large_address_storage.clear();
         self
     }
 
-    pub fn as_inner(&self) -> &[i64; IN_MEMORY_SIZE] {
+    pub fn as_inner(&self) -> &[i64; BUFFER_SIZE] {
         self.buf.as_ref()
     }
 
-    pub fn as_inner_mut(&mut self) -> &mut [i64; IN_MEMORY_SIZE] {
+    pub fn as_inner_mut(&mut self) -> &mut [i64; BUFFER_SIZE] {
         self.buf.as_mut()
     }
 
@@ -43,16 +43,16 @@ impl Memory {
 
 impl TMemory for Memory {
     fn load(&self, idx: usize) -> Option<&i64> {
-        if idx >= IN_MEMORY_SIZE {
-            self.large_memory_storage.get(&idx).or(Some(&0))
+        if idx >= BUFFER_SIZE {
+            self.large_address_storage.get(&idx).or(Some(&0))
         } else {
             self.buf.get(idx)
         }
     }
 
     fn load_mut(&mut self, idx: usize) -> Option<&mut i64> {
-        if idx >= IN_MEMORY_SIZE {
-            Some(self.large_memory_storage.entry(idx).or_insert(0))
+        if idx >= BUFFER_SIZE {
+            Some(self.large_address_storage.entry(idx).or_insert(0))
         } else {
             self.buf.get_mut(idx)
         }
