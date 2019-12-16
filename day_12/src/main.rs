@@ -36,7 +36,7 @@ impl System {
         }
 
         for moon in self.0.iter_mut() {
-            moon.apply_velocity();
+            moon.apply_velocity(coord);
         }
     }
 
@@ -147,10 +147,18 @@ impl Moon {
         self.exert_gravity_on(coord, other, false);
     }
 
-    pub fn apply_velocity(&mut self) {
-        self.position.x += self.velocity.x;
-        self.position.y += self.velocity.y;
-        self.position.z += self.velocity.z;
+    pub fn apply_velocity(&mut self, coord: Coord) {
+        match coord {
+            Coord::X => {
+                self.position.x += self.velocity.x;
+            },
+            Coord::Y => {
+                self.position.y += self.velocity.y;
+            },
+            Coord::Z => {
+                self.position.z += self.velocity.z;
+            },
+        }
     }
 
     pub fn potential_energy(&self) -> i32 {
