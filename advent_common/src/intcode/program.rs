@@ -38,6 +38,7 @@ impl Program {
 
     pub fn load_to(&self, output: &mut [i64]) -> Result<()> {
         if output.len() < self.inner.len() {
+            println!("output: {}, program: {}", output.len(), self.inner.len());
             return Err(ErrorKinds::NotEnoughMemoryToLoadProgramError.into());
         }
         for (l, r) in self.inner.iter().zip(output.iter_mut()) {

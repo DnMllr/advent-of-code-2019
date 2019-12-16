@@ -1,7 +1,7 @@
-use std::io::BufRead;
-use std::ops::Sub;
 use std::collections::HashMap;
 use std::f64::consts::PI;
+use std::io::BufRead;
+use std::ops::Sub;
 
 use anyhow::{Error, Result};
 use num::Integer;

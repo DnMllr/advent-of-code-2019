@@ -1,0 +1,13 @@
+[package]
+name = "day_13"
+version = "0.1.0"
+authors = ["Dan Miller <dnmllr000@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.25"
+itertools = "0.8.2"
+advent_common = { path = "../advent_common" }
+termion = "1.5.4"

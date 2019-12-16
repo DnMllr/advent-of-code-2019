@@ -1,8 +1,9 @@
 use super::Memory as TMemory;
 use std::collections::HashMap;
 
-const BUFFER_SIZE: usize = 1024;
+const BUFFER_SIZE: usize = 4096;
 
+#[derive(Clone)]
 pub struct Memory {
     buf: Box<[i64; BUFFER_SIZE]>,
     large_address_storage: HashMap<usize, i64>,

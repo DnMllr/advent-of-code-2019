@@ -8,6 +8,7 @@ use crate::intcode::opcodes::OpCode;
 use crate::intcode::parameters::Parameter;
 use crate::intcode::{Memory as MemoryT, Program, Runable, Status, VMType};
 
+#[derive(Clone, Debug)]
 enum InternalStatus {
     Running,
     Exited(Result<(), ()>),
@@ -15,6 +16,7 @@ enum InternalStatus {
     WaitingOnInputTo(Parameter),
 }
 
+#[derive(Clone)]
 pub struct VM {
     status: InternalStatus,
     memory: Memory,
