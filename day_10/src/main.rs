@@ -116,7 +116,7 @@ fn part2(station: &Asteroid, asteroids: &[Asteroid]) -> Result<Asteroid> {
     let mut index = 0;
     let mut count = 0;
     loop {
-        let (angle, roids) = &mut values[index];
+        let (_, roids) = &mut values[index];
         if !roids.is_empty() {
             let roid = roids.remove(0);
             count += 1;

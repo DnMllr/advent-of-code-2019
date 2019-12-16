@@ -58,10 +58,15 @@
       <sourceFolder url="file://$MODULE_DIR$/day_13/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/day_13/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/day_13/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/day_12/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/day_12/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/day_12/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/day_12/benches" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/advent_common/target" />
       <excludeFolder url="file://$MODULE_DIR$/day_1/target" />
       <excludeFolder url="file://$MODULE_DIR$/day_10/target" />
       <excludeFolder url="file://$MODULE_DIR$/day_11/target" />
+      <excludeFolder url="file://$MODULE_DIR$/day_12/target" />
       <excludeFolder url="file://$MODULE_DIR$/day_13/target" />
       <excludeFolder url="file://$MODULE_DIR$/day_2/target" />
       <excludeFolder url="file://$MODULE_DIR$/day_3/target" />

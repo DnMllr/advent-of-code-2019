@@ -95,6 +95,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "day_12"
+version = "0.1.0"
+dependencies = [
+ "advent_common 0.1.0",
+ "anyhow 1.0.25 (registry+https://github.com/rust-lang/crates.io-index)",
+ "itertools 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "day_13"
 version = "0.1.0"
 dependencies = [
