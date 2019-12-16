@@ -119,7 +119,6 @@ fn part2(station: &Asteroid, asteroids: &[Asteroid]) -> Result<Asteroid> {
         let (angle, roids) = &mut values[index];
         if !roids.is_empty() {
             let roid = roids.remove(0);
-            println!("station: {:?} slope: {:?} roid: {:?}", station, angle, roid);
             count += 1;
             if count == 200 {
                 return Ok(*roid);
